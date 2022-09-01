@@ -1,4 +1,5 @@
-# tus-node-server
+# tus-node-server + peer deps
+
 [![npm version](https://badge.fury.io/js/tus-node-server.svg)](https://badge.fury.io/js/tus-node-server)
 [![Build Status](https://github.com/tus/tus-node-server/actions/workflows/ci.yml/badge.svg)](https://github.com/tus/tus-node-server/actions/workflows/ci.yml)
 
@@ -12,35 +13,36 @@ $ npm install tus-node-server
 
 ## Flexible Data Stores
 
-- **Local File Storage**
+-   **Local File Storage**
+
     ```js
     server.datastore = new tus.FileStore({
-        path: '/files'
+        path: "/files",
     });
     ```
 
-- **Google Cloud Storage**
-    ```js
+-   **Google Cloud Storage**
 
+    ```js
     server.datastore = new tus.GCSDataStore({
-        path: '/files',
-        projectId: 'project-id',
-        keyFilename: 'path/to/your/keyfile.json',
-        bucket: 'bucket-name',
+        path: "/files",
+        projectId: "project-id",
+        keyFilename: "path/to/your/keyfile.json",
+        bucket: "bucket-name",
     });
     ```
 
-- **Amazon S3**
-    ```js
+-   **Amazon S3**
 
+    ```js
     server.datastore = new tus.S3Store({
-        path: '/files',
-        bucket: 'bucket-name',
-        accessKeyId: 'access-key-id',
-        secretAccessKey: 'secret-access-key',
-        region: 'eu-west-1',
+        path: "/files",
+        bucket: "bucket-name",
+        accessKeyId: "access-key-id",
+        secretAccessKey: "secret-access-key",
+        region: "eu-west-1",
         partSize: 8 * 1024 * 1024, // each uploaded part will have ~8MB,
-        tmpDirPrefix: 'tus-s3-store',
+        tmpDirPrefix: "tus-s3-store",
     });
     ```
 
@@ -53,37 +55,40 @@ $ docker run -p 1080:8080 -d bhstahl/tus-node-deploy
 ```
 
 #### Build a standalone server yourself
+
 ```js
-const tus = require('tus-node-server');
+const tus = require("tus-node-server");
 
 const server = new tus.Server();
 server.datastore = new tus.FileStore({
-    path: '/files'
+    path: "/files",
 });
 
-const host = '127.0.0.1';
+const host = "127.0.0.1";
 const port = 1080;
 server.listen({ host, port }, () => {
-    console.log(`[${new Date().toLocaleTimeString()}] tus server listening at http://${host}:${port}`);
+    console.log(
+        `[${new Date().toLocaleTimeString()}] tus server listening at http://${host}:${port}`
+    );
 });
 ```
 
 #### Use tus-node-server as [Express Middleware](http://expressjs.com/en/guide/using-middleware.html)
 
 ```js
-const tus = require('tus-node-server');
+const tus = require("tus-node-server");
 const server = new tus.Server();
 server.datastore = new tus.FileStore({
-    path: '/files'
+    path: "/files",
 });
 
-const express = require('express');
+const express = require("express");
 const app = express();
 const uploadApp = express();
-uploadApp.all('*', server.handle.bind(server));
-app.use('/uploads', uploadApp);
+uploadApp.all("*", server.handle.bind(server));
+app.use("/uploads", uploadApp);
 
-const host = '127.0.0.1';
+const host = "127.0.0.1";
 const port = 1080;
 app.listen(port, host);
 ```
@@ -91,10 +96,10 @@ app.listen(port, host);
 #### Use tus-node-server with [Koa](https://github.com/koajs/koa) or plain Node server
 
 ```js
-const http = require('http');
-const url = require('url');
-const Koa = require('koa')
-const tus = require('tus-node-server');
+const http = require("http");
+const url = require("url");
+const Koa = require("koa");
+const tus = require("tus-node-server");
 const tusServer = new tus.Server();
 
 const app = new Koa();
@@ -102,7 +107,7 @@ const appCallback = app.callback();
 const port = 1080;
 
 tusServer.datastore = new tus.FileStore({
-    path: '/files',
+    path: "/files",
 });
 
 const server = http.createServer((req, res) => {
@@ -116,39 +121,40 @@ const server = http.createServer((req, res) => {
     appCallback(req, res);
 });
 
-server.listen(port)
+server.listen(port);
 ```
 
 #### Use tus-node-server with [Fastify](https://www.fastify.io)
 
 ```js
-const tus = require('tus-node-server');
+const tus = require("tus-node-server");
 const tusServer = new tus.Server();
 tusServer.datastore = new tus.FileStore({
-    path: '/files',
+    path: "/files",
 });
 
-const fastify = require('fastify')({ logger: true });
+const fastify = require("fastify")({ logger: true });
 
 /**
- * add new content-type to fastify forewards request 
+ * add new content-type to fastify forewards request
  * without any parser to leave body untouched
  * @see https://www.fastify.io/docs/latest/Reference/ContentTypeParser/
  */
 fastify.addContentTypeParser(
-    'application/offset+octet-stream', async () => true
+    "application/offset+octet-stream",
+    async () => true
 );
 
 /**
- * let tus handle preparation and filehandling requests 
+ * let tus handle preparation and filehandling requests
  * fastify exposes raw nodejs http req/res via .raw property
  * @see https://www.fastify.io/docs/latest/Reference/Request/
  * @see https://www.fastify.io/docs/latest/Reference/Reply/#raw
  */
-fastify.all('/files', (req, res) => {
+fastify.all("/files", (req, res) => {
     tusServer.handle(req.raw, res.raw);
 });
-fastify.all('/files/*', (req, res) => {
+fastify.all("/files/*", (req, res) => {
     tusServer.handle(req.raw, res.raw);
 });
 
@@ -161,13 +167,14 @@ fastify.listen(3000, (err) => {
 ```
 
 ## Features
+
 #### Events:
 
 Execute code when lifecycle events happen by adding event handlers to your server.
 
 ```js
-const Server = require('tus-node-server').Server;
-const EVENTS = require('tus-node-server').EVENTS;
+const Server = require("tus-node-server").Server;
+const EVENTS = require("tus-node-server").EVENTS;
 
 const server = new Server();
 server.on(EVENTS.EVENT_UPLOAD_COMPLETE, (event) => {
@@ -175,9 +182,10 @@ server.on(EVENTS.EVENT_UPLOAD_COMPLETE, (event) => {
 });
 ```
 
-- `EVENT_FILE_CREATED`: Fired when a `POST` request successfully creates a new file
+-   `EVENT_FILE_CREATED`: Fired when a `POST` request successfully creates a new file
 
     _Example payload:_
+
     ```
     {
         file: {
@@ -188,18 +196,20 @@ server.on(EVENTS.EVENT_UPLOAD_COMPLETE, (event) => {
     }
     ```
 
-- `EVENT_ENDPOINT_CREATED`: Fired when a `POST` request successfully creates a new upload endpoint
+-   `EVENT_ENDPOINT_CREATED`: Fired when a `POST` request successfully creates a new upload endpoint
 
     _Example payload:_
+
     ```
     {
         url: 'http://localhost:1080/files/7b26bf4d22cf7198d3b3706bf0379794'
     }
     ```
 
-- `EVENT_UPLOAD_COMPLETE`: Fired when a `PATCH` request finishes writing the file
+-   `EVENT_UPLOAD_COMPLETE`: Fired when a `PATCH` request finishes writing the file
 
     _Example payload:_
+
     ```
     {
         file: {
@@ -209,19 +219,22 @@ server.on(EVENTS.EVENT_UPLOAD_COMPLETE, (event) => {
         }
     }
     ```
-    
-- `EVENT_FILE_DELETED`: Fired when a `DELETE` request finishes deleting the file
+
+-   `EVENT_FILE_DELETED`: Fired when a `DELETE` request finishes deleting the file
 
     _Example payload:_
+
     ```
     {
         file_id: '7b26bf4d22cf7198d3b3706bf0379794'
-           
+
     }
     ```
 
 #### Custom `GET` handlers:
+
 Add custom `GET` handlers to suit your needs, similar to [Express routing](https://expressjs.com/en/guide/routing.html).
+
 ```js
 const server = new Server();
 server.get('/uploads', (req, res) => {
@@ -237,28 +250,30 @@ server.get('/uploads', (req, res) => {
 The default naming of files is a random crypto hex string. When using your own `namingFunction`, make sure to create URL friendly names such as removing spaces.
 
 ```js
-const crypto = require('crypto');
+const crypto = require("crypto");
 
 // req is http.IncomingMessage
 const randomString = (req) => {
     // same as the default implementation
-    return crypto.randomBytes(16).toString('hex');
-}
+    return crypto.randomBytes(16).toString("hex");
+};
 
 server.datastore = new tus.FileStore({
-    path: '/files',
-    namingFunction: randomString
+    path: "/files",
+    namingFunction: randomString,
 });
 ```
 
 ## Development
 
 Start the demo server using Local File Storage
+
 ```bash
 $ npm run demo
 ```
 
 Or start up the demo server using Google Cloud Storage
+
 ```bash
 $ npm run gcs_demo
 ```
