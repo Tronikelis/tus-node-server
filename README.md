@@ -1,4 +1,4 @@
-# tus-node-server + peer deps
+# tus-node-server without extra stores
 
 [![npm version](https://badge.fury.io/js/tus-node-server.svg)](https://badge.fury.io/js/tus-node-server)
 [![Build Status](https://github.com/tus/tus-node-server/actions/workflows/ci.yml/badge.svg)](https://github.com/tus/tus-node-server/actions/workflows/ci.yml)

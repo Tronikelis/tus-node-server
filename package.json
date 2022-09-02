@@ -59,10 +59,6 @@
         "supertest": "^6.2.2",
         "tus-js-client": "^3.0.0"
     },
-    "peerDependencies": {
-        "@google-cloud/storage": "^6.2.2",
-        "aws-sdk": "^2.1064.0"
-    },
     "dependencies": {
         "configstore": "^5.0.1",
         "debug": "^4.3.3"
